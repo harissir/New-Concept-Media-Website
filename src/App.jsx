@@ -4,6 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 import { useRef, useState } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import {
   motion,
   useInView,
@@ -390,7 +391,7 @@ const DIFFERENTIATORS = [
 const FAQS = [
   {
     q: 'What does a typical project cost?',
-    a: 'Projects typically range from $1,000–$8,000 depending on scope, page count, and integrations. We give you a clear, specific number in the first call, no vague "it depends" and no surprise invoices.',
+    a: 'Projects typically range from $1,000–$5,000 depending on scope, page count, and integrations. We give you a clear, specific number in the first call, no vague "it depends" and no surprise invoices.',
   },
   {
     q: 'How long does a project take?',
@@ -1275,6 +1276,7 @@ export default function App() {
       <FAQ />
       <FinalCTA />
       <Footer />
+      <Analytics />
     </div>
   )
 }
