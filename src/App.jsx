@@ -3,7 +3,7 @@
 // Single-page React component
 // ═══════════════════════════════════════════════════════════════════════
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import {
   motion,
@@ -51,6 +51,33 @@ const stagger = {
 }
 const staggerFast = {
   visible: { transition: { staggerChildren: 0.07 } },
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ANIMATED GROUP — staggered entrance wrapper (ibelick/animated-group)
+// ═══════════════════════════════════════════════════════════════════════
+function AnimatedGroup({ children, className, variants }) {
+  const containerVariants = variants?.container ?? {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+  }
+  const itemVariants = variants?.item ?? {
+    hidden: { opacity: 0, filter: 'blur(12px)', y: 12 },
+    visible: {
+      opacity: 1, filter: 'blur(0px)', y: 0,
+      transition: { type: 'spring', bounce: 0.3, duration: 1.5 },
+    },
+  }
+  return (
+    <motion.div initial="hidden" animate="visible" variants={containerVariants} className={className}>
+      {children && Array.isArray(children)
+        ? children.map((child, i) => (
+            <motion.div key={i} variants={itemVariants}>{child}</motion.div>
+          ))
+        : <motion.div variants={itemVariants}>{children}</motion.div>
+      }
+    </motion.div>
+  )
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -420,6 +447,13 @@ const FAQS = [
 // ═══════════════════════════════════════════════════════════════════════
 function Nav() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const links = [
     { href: '#work',    label: 'Work' },
@@ -434,9 +468,16 @@ function Nav() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: EASE, delay: 0.1 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-ink/80 backdrop-blur-xl border-b border-[#ffffff0a]"
+        className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4"
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-12 h-[68px] flex items-center justify-between">
+        <div
+          className={`w-full transition-all duration-300 ${
+            scrolled
+              ? 'max-w-3xl mt-3 px-5 bg-[#0e0d16]/90 backdrop-blur-xl border border-[#ffffff12] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]'
+              : 'max-w-7xl px-6 md:px-12 bg-ink/80 backdrop-blur-xl border-b border-[#ffffff0a] rounded-none'
+          }`}
+        >
+        <div className="h-[68px] flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center group" aria-label="New Concept Media">
             <img
@@ -477,6 +518,7 @@ function Nav() {
           >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
+        </div>
         </div>
       </motion.nav>
 
